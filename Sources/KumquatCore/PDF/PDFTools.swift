@@ -119,15 +119,15 @@ public enum PDFTools {
 
     public static func drawWatermark(_ mark: Watermark, in ctx: CGContext, size: CGSize) {
         guard !mark.text.isEmpty else { return }
-        let font = CTFontCreateWithName("Helvetica-Bold" as CFString, mark.fontSize, nil)
-        let color = mark.color.copy(alpha: mark.opacity) ?? mark.color
+        let font = CTFontCreateWithName("Helvetica-Bold" as CFString, CGFloat(mark.fontSize), nil)
+        let color = mark.color.copy(alpha: CGFloat(mark.opacity)) ?? mark.color
         let attributed = NSAttributedString(string: mark.text, attributes: [
             NSAttributedString.Key(kCTFontAttributeName as String): font,
             NSAttributedString.Key(kCTForegroundColorAttributeName as String): color,
         ])
         let line = CTLineCreateWithAttributedString(attributed)
         let bounds = CTLineGetImageBounds(line, ctx)
-        let radians = mark.angle * .pi / 180
+        let radians = CGFloat(mark.angle) * .pi / 180
 
         func stamp(at center: CGPoint) {
             ctx.saveGState()
@@ -139,7 +139,7 @@ public enum PDFTools {
         }
 
         if mark.tiled {
-            let stepX = max(bounds.width * 1.3, 120), stepY = max(mark.fontSize * 4, 80)
+            let stepX: CGFloat = max(bounds.width * 1.3, 120), stepY: CGFloat = max(CGFloat(mark.fontSize) * 4, 80)
             var y = -stepY
             var row = 0
             while y < size.height + stepY {

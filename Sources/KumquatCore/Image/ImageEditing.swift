@@ -85,6 +85,7 @@ public enum ImageCrop {
 
     /// Largest rect with the given aspect ratio (width / height), centred in `size`.
     public static func centeredRect(aspect: Double, in size: CGSize) -> CGRect {
+        let aspect = CGFloat(aspect)
         var w = size.width, h = size.width / aspect
         if h > size.height {
             h = size.height
@@ -148,8 +149,8 @@ public struct GradientPreset: Sendable, Hashable, Identifiable {
             ctx.fill(rect)
         } else if let gradient = CGGradient(colorsSpace: space, colors: colors.map(\.cgColor) as CFArray, locations: nil) {
             // Angle is measured y-down; CG is y-up.
-            let radians = angle * .pi / 180
-            let dx = cos(radians), dy = -sin(radians)
+            let radians = CGFloat(angle) * .pi / 180
+            let dx: CGFloat = cos(radians), dy: CGFloat = -sin(radians)
             let half = (abs(dx) * rect.width + abs(dy) * rect.height) / 2
             let c = CGPoint(x: rect.midX, y: rect.midY)
             ctx.drawLinearGradient(gradient, start: CGPoint(x: c.x - dx * half, y: c.y - dy * half),
@@ -160,9 +161,9 @@ public struct GradientPreset: Sendable, Hashable, Identifiable {
         for blob in blobs {
             let colors = [blob.color.cgColor, blob.color.cgColor.copy(alpha: 0) ?? blob.color.cgColor] as CFArray
             guard let gradient = CGGradient(colorsSpace: space, colors: colors, locations: [0, 1]) else { continue }
-            let center = CGPoint(x: rect.minX + blob.x * rect.width, y: rect.maxY - blob.y * rect.height)
+            let center = CGPoint(x: rect.minX + CGFloat(blob.x) * rect.width, y: rect.maxY - CGFloat(blob.y) * rect.height)
             ctx.drawRadialGradient(gradient, startCenter: center, startRadius: 0, endCenter: center,
-                                   endRadius: blob.radius * diagonal, options: [])
+                                   endRadius: CGFloat(blob.radius) * diagonal, options: [])
         }
         ctx.restoreGState()
     }
@@ -211,9 +212,9 @@ public struct BackgroundParams: Sendable, Hashable {
     public static func defaults(for size: CGSize) -> BackgroundParams {
         let longest = max(size.width, size.height), shortest = min(size.width, size.height)
         return BackgroundParams(fill: .gradient(GradientPreset.all[0]),
-                                padding: (longest * 0.0625).rounded(),
-                                cornerRadius: (shortest * 0.012).rounded(),
-                                shadow: (longest * 0.01).rounded(),
+                                padding: Double((longest * 0.0625).rounded()),
+                                cornerRadius: Double((shortest * 0.012).rounded()),
+                                shadow: Double((longest * 0.01).rounded()),
                                 ratio: .auto)
     }
 
@@ -229,9 +230,11 @@ public struct BackgroundParams: Sendable, Hashable {
 
 public enum BackgroundComposer {
     public static func canvasSize(for imageSize: CGSize, params: BackgroundParams) -> CGSize {
-        var w = imageSize.width + 2 * params.padding
-        var h = imageSize.height + 2 * params.padding
-        if let r = params.ratio.value {
+        let padding = CGFloat(params.padding)
+        var w = imageSize.width + 2 * padding
+        var h = imageSize.height + 2 * padding
+        if let value = params.ratio.value {
+            let r = CGFloat(value)
             if w / h < r { w = h * r } else { h = w / r }
         }
         return CGSize(width: w.rounded(), height: h.rounded())
@@ -268,12 +271,13 @@ public enum BackgroundComposer {
         let imageRect = CGRect(x: ((size.width - CGFloat(image.width)) / 2).rounded(),
                                y: ((size.height - CGFloat(image.height)) / 2).rounded(),
                                width: CGFloat(image.width), height: CGFloat(image.height))
-        let radius = min(params.cornerRadius, min(imageRect.width, imageRect.height) / 2)
+        let radius = min(CGFloat(params.cornerRadius), min(imageRect.width, imageRect.height) / 2)
         let path = CGPath(roundedRect: imageRect, cornerWidth: radius, cornerHeight: radius, transform: nil)
 
         if params.shadow > 0 {
+            let shadow = CGFloat(params.shadow)
             ctx.saveGState()
-            ctx.setShadow(offset: CGSize(width: 0, height: -params.shadow * 0.35), blur: params.shadow * 1.5,
+            ctx.setShadow(offset: CGSize(width: 0, height: -shadow * 0.35), blur: shadow * 1.5,
                           color: CGColor(gray: 0, alpha: 0.35))
             ctx.addPath(path)
             ctx.setFillColor(CGColor(gray: 1, alpha: 1))
@@ -467,7 +471,7 @@ public enum AnnotationRenderer {
         }
 
         for a in annotations {
-            let width = max(1, a.size * longest)
+            let width: CGFloat = max(1, CGFloat(a.size) * longest)
             ctx.saveGState()
             ctx.setLineCap(.round)
             ctx.setLineJoin(.round)
@@ -487,8 +491,8 @@ public enum AnnotationRenderer {
                 ctx.strokePath()
             case .arrow(let start, let end):
                 let s = p(start), e = p(end)
-                let angle = atan2(e.y - s.y, e.x - s.x)
-                let head = width * 4.5
+                let angle: CGFloat = atan2(e.y - s.y, e.x - s.x)
+                let head: CGFloat = width * 4.5
                 let base = CGPoint(x: e.x - cos(angle) * head * 0.8, y: e.y - sin(angle) * head * 0.8)
                 ctx.move(to: s)
                 ctx.addLine(to: base)
@@ -503,7 +507,7 @@ public enum AnnotationRenderer {
             case .ellipse(let rect):
                 ctx.strokeEllipse(in: r(rect).standardized)
             case .text(let string, let origin):
-                let fontSize = max(8, a.size * longest * 6)
+                let fontSize: CGFloat = max(8, CGFloat(a.size) * longest * 6)
                 let attributes: [NSAttributedString.Key: Any] = [
                     .font: NSFont.systemFont(ofSize: fontSize, weight: .bold),
                     .foregroundColor: a.color.nsColor,

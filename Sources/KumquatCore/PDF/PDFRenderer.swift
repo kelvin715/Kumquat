@@ -6,7 +6,7 @@ public enum PDFRenderer {
     public static func render(_ page: CGPDFPage, dpi: Double) -> CGImage? {
         let box = page.getBoxRect(.cropBox)
         let rotation = ((Int(page.rotationAngle) % 360) + 360) % 360
-        let scale = dpi / 72
+        let scale = CGFloat(dpi / 72)
         var size = box.size
         if rotation == 90 || rotation == 270 { size = CGSize(width: size.height, height: size.width) }
         let pixelWidth = max(1, Int((size.width * scale).rounded()))

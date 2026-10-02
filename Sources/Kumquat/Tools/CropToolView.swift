@@ -74,7 +74,8 @@ enum CropMath {
         minY = min(max(0, minY), start.maxY - minimumSize)
         maxY = max(min(bounds.height, maxY), start.minY + minimumSize)
         let free = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
-        guard let ratio else { return free }
+        guard let value = ratio else { return free }
+        let ratio = CGFloat(value)
 
         var w = free.width, h = free.height
         switch handle {
@@ -114,7 +115,8 @@ enum CropMath {
     }
 
     /// Largest rect of `ratio` around `center` that fits the image.
-    static func largest(ratio: Double, around center: CGPoint, bounds: CGSize) -> CGRect {
+    static func largest(ratio value: Double, around center: CGPoint, bounds: CGSize) -> CGRect {
+        let ratio = CGFloat(value)
         var w = bounds.width, h = w / ratio
         if h > bounds.height {
             h = bounds.height
@@ -128,8 +130,9 @@ enum CropMath {
     /// Resizes around the centre to a typed size, keeping the ratio if one is set.
     static func resized(_ rect: CGRect, width: CGFloat?, height: CGFloat?, ratio: Double?, bounds: CGSize) -> CGRect {
         var w = width ?? rect.width, h = height ?? rect.height
-        if let ratio {
-            if width != nil { h = w / ratio } else { w = h * ratio }
+        if let value = ratio {
+            let r = CGFloat(value)
+            if width != nil { h = w / r } else { w = h * r }
         }
         let scale = min(1, bounds.width / max(w, 1), bounds.height / max(h, 1))
         w = max(minimumSize, w * scale)
