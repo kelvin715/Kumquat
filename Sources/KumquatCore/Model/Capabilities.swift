@@ -8,8 +8,8 @@ public struct Capabilities: Sendable {
     public var canWriteAVIF: Bool
     /// ffmpeg unlocks MP3/WebM output and inputs AVFoundation can't read (MKV, WebM, OGG...).
     public var ffmpegURL: URL?
-    /// cwebp (from `brew install webp`) produces smaller lossy WebP files.
-    /// Without it Kumquat uses its built-in lossless encoder.
+    /// cwebp (from `brew install webp`) is used for lossy WebP when installed; it squeezes files
+    /// a little smaller than Kumquat's built-in encoder.
     public var cwebpURL: URL?
 
     public init(canWriteHEIC: Bool, canWriteAVIF: Bool, ffmpegURL: URL?, cwebpURL: URL?) {

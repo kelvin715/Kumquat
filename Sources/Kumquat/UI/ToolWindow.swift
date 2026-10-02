@@ -49,9 +49,11 @@ struct Checkerboard: View {
     var body: some View {
         Canvas { ctx, size in
             let s: CGFloat = 8
-            for y in stride(from: 0, to: size.height, by: s) {
-                for x in stride(from: 0, to: size.width, by: s) where (Int(x / s) + Int(y / s)) % 2 == 0 {
-                    ctx.fill(Path(CGRect(x: x, y: y, width: s, height: s)), with: .color(.black.opacity(0.06)))
+            let columns = Int(size.width / s) + 1, rows = Int(size.height / s) + 1
+            for row in 0..<rows {
+                for column in 0..<columns where (row + column) % 2 == 0 {
+                    let rect = CGRect(x: CGFloat(column) * s, y: CGFloat(row) * s, width: s, height: s)
+                    ctx.fill(Path(rect), with: .color(Color.black.opacity(0.06)))
                 }
             }
         }

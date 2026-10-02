@@ -111,8 +111,10 @@ struct BackgroundToolView: View {
                                 .frame(width: 34)
                                 .help(L("Custom colour"))
                                 .onChange(of: customColor) {
-                                    if let c = NSColor(customColor).usingColorSpace(.sRGB) {
-                                        params.fill = .solid(RGBA(c.redComponent, c.greenComponent, c.blueComponent))
+                                    let picked: NSColor = NSColor(customColor)
+                                    if let c = picked.usingColorSpace(NSColorSpace.sRGB) {
+                                        let rgba = RGBA(Double(c.redComponent), Double(c.greenComponent), Double(c.blueComponent))
+                                        params.fill = .solid(rgba)
                                     }
                                 }
                         }

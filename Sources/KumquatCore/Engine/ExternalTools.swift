@@ -8,7 +8,7 @@ public enum ExternalTools {
     public static func locate(_ name: String) -> URL? {
         var dirs = searchDirectories
         if let path = ProcessInfo.processInfo.environment["PATH"] {
-            dirs += path.split(separator: ":").map(String.init)
+            for part in path.split(separator: ":") { dirs.append(String(part)) }
         }
         let fm = FileManager.default
         for dir in dirs {

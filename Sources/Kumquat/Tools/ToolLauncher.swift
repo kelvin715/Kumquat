@@ -1,4 +1,5 @@
 import AppKit
+import CoreImage
 import KumquatCore
 import SwiftUI
 
@@ -19,6 +20,15 @@ enum ToolLauncher {
         default: AppActions.runInBackground(.tool(tool), on: [url])
         }
     }
+}
+
+/// One Core Image context for all previews (creating contexts is expensive).
+enum SharedCoreImage {
+    static let context: CIContext = {
+        var options: [CIContextOption: Any] = [:]
+        options[CIContextOption.cacheIntermediates] = false
+        return CIContext(options: options)
+    }()
 }
 
 /// Loads an image once: the full-resolution upright bitmap for saving and a smaller copy for

@@ -3,11 +3,10 @@ import SwiftUI
 /// The warm "citrus glass" palette shared by the wheel and the tool windows.
 enum Theme {
     static func hex(_ value: UInt32, _ opacity: Double = 1) -> Color {
-        Color(.sRGB,
-              red: Double((value >> 16) & 0xff) / 255,
-              green: Double((value >> 8) & 0xff) / 255,
-              blue: Double(value & 0xff) / 255,
-              opacity: opacity)
+        let red: Double = Double((value >> 16) & 0xff) / 255
+        let green: Double = Double((value >> 8) & 0xff) / 255
+        let blue: Double = Double(value & 0xff) / 255
+        return Color(.sRGB, red: red, green: green, blue: blue, opacity: opacity)
     }
 
     // Accent

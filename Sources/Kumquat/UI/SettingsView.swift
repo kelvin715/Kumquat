@@ -67,17 +67,14 @@ struct SettingsView: View {
                     Text("600 dpi").tag(600.0)
                 }
                 Toggle(L("Lossless WebP"), isOn: $settings.webpLossless)
-                    .disabled(capabilities.cwebpURL == nil)
-                    .help(capabilities.cwebpURL == nil
-                          ? L("Kumquat's built-in WebP encoder is always lossless. Install cwebp for smaller lossy files.")
-                          : "")
+                    .help(L("Off: smaller lossy WebP files. Pictures with transparency are always saved losslessly."))
             }
 
             Section(L("Optional helpers")) {
                 Toggle(L("Use Homebrew tools when installed"), isOn: $settings.useExternalTools)
                     .onChange(of: settings.useExternalTools) { capabilities = settings.capabilities }
                 helperRow("ffmpeg", capabilities.ffmpegURL, L("MP3, WebM, MKV and other formats"))
-                helperRow("cwebp", capabilities.cwebpURL, L("Smaller lossy WebP"))
+                helperRow("cwebp", capabilities.cwebpURL, L("Slightly smaller WebP"))
                 if capabilities.ffmpegURL == nil || capabilities.cwebpURL == nil {
                     HStack {
                         Text("brew install ffmpeg webp")

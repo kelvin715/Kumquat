@@ -51,7 +51,7 @@ struct OrangeSlider: View {
     @Binding var value: Double
     let range: ClosedRange<Double>
     var unit = "px"
-    var format: (Double) -> String = { String(Int($0.rounded())) }
+    var format: (Double) -> String = { (value: Double) -> String in String(Int(value.rounded())) }
     var onEditingEnded: () -> Void = {}
 
     @State private var dragging = false

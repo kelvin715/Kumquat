@@ -7,7 +7,8 @@ public enum AudioConverter {
         let destination = OutputNaming.convertedURL(for: input, ext: format.fileExtension)
         let readable = await MediaSupport.isReadable(input)
 
-        if format == .mp3 || !readable {
+        let needsFFmpeg: Bool = format == OutputFormat.mp3 || !readable
+        if needsFFmpeg {
             guard let ffmpeg = capabilities.ffmpegURL else {
                 throw readable ? KumquatError.toolMissing("ffmpeg")
                     : KumquatError.unsupportedInput("\(input.lastPathComponent) (install ffmpeg to open it)")

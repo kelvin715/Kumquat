@@ -123,12 +123,24 @@ public enum ImageConverter {
             return
         }
         let image = try ImageIOHelpers.loadImage(input)
-        try encodeWebPLossless(image, to: output)
+        try encodeWebP(image, to: output, lossless: options.webpLossless, quality: options.webpQuality / 100)
+    }
+
+    /// Kumquat's own WebP encoders: lossy VP8 for opaque pictures, lossless VP8L when asked
+    /// for or when the image has transparency.
+    public static func encodeWebP(_ image: CGImage, to output: URL, lossless: Bool, quality: Double) throws {
+        guard let buffer = RGBABuffer(image: image) else { throw KumquatError.decodeFailed("image") }
+        let data: Data
+        if lossless || buffer.hasTransparency {
+            data = try VP8LEncoder.encode(buffer)
+        } else {
+            data = try VP8Encoder.encode(buffer, quality: quality)
+        }
+        try data.write(to: output)
     }
 
     public static func encodeWebPLossless(_ image: CGImage, to output: URL) throws {
-        guard let buffer = RGBABuffer(image: image) else { throw KumquatError.decodeFailed("image") }
-        try VP8LEncoder.encode(buffer).write(to: output)
+        try encodeWebP(image, to: output, lossless: true, quality: 1)
     }
 
     /// Writes an upright PNG copy of the image to a temporary file for command-line encoders.

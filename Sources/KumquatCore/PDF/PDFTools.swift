@@ -121,10 +121,10 @@ public enum PDFTools {
         guard !mark.text.isEmpty else { return }
         let font = CTFontCreateWithName("Helvetica-Bold" as CFString, CGFloat(mark.fontSize), nil)
         let color = mark.color.copy(alpha: CGFloat(mark.opacity)) ?? mark.color
-        let attributed = NSAttributedString(string: mark.text, attributes: [
-            NSAttributedString.Key(kCTFontAttributeName as String): font,
-            NSAttributedString.Key(kCTForegroundColorAttributeName as String): color,
-        ])
+        let fontKey = NSAttributedString.Key(kCTFontAttributeName as String)
+        let colorKey = NSAttributedString.Key(kCTForegroundColorAttributeName as String)
+        let attributes: [NSAttributedString.Key: Any] = [fontKey: font, colorKey: color]
+        let attributed = NSAttributedString(string: mark.text, attributes: attributes)
         let line = CTLineCreateWithAttributedString(attributed)
         let bounds = CTLineGetImageBounds(line, ctx)
         let radians = CGFloat(mark.angle) * .pi / 180

@@ -9,7 +9,7 @@ struct EditToolView: View {
     @State private var adjustments = ImageAdjustments()
     @State private var rendered: CGImage?
     @State private var showOriginal = false
-    private let context = CIContext(options: [.cacheIntermediates: false])
+    private let context: CIContext = SharedCoreImage.context
 
     init(document: ImageDocument, close: @escaping () -> Void, adjustments: ImageAdjustments = ImageAdjustments()) {
         _doc = StateObject(wrappedValue: document)

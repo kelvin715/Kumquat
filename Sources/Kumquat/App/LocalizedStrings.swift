@@ -187,12 +187,12 @@ enum LocalizedStrings {
         "Compress tool quality": "压缩工具质量",
         "PDF to image resolution": "PDF 转图片分辨率",
         "Lossless WebP": "无损 WebP",
-        "Kumquat's built-in WebP encoder is always lossless. Install cwebp for smaller lossy files.":
-            "Kumquat 内置的 WebP 编码器为无损编码。安装 cwebp 可生成更小的有损文件。",
+        "Off: smaller lossy WebP files. Pictures with transparency are always saved losslessly.":
+            "关闭时生成更小的有损 WebP；带透明通道的图片始终无损保存。",
         "Optional helpers": "可选辅助工具",
         "Use Homebrew tools when installed": "检测到 Homebrew 工具时使用",
         "MP3, WebM, MKV and other formats": "MP3、WebM、MKV 等格式",
-        "Smaller lossy WebP": "更小的有损 WebP",
+        "Slightly smaller WebP": "体积稍小的 WebP",
         "Not installed": "未安装",
         "Copy": "拷贝",
         "Source on GitHub": "GitHub 源代码",

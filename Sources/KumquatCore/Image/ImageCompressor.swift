@@ -10,7 +10,9 @@ public enum ImageCompressor {
         public var newSize: Int64
 
         public var savedFraction: Double {
-            originalSize > 0 ? 1 - Double(newSize) / Double(originalSize) : 0
+            guard originalSize > 0 else { return 0 }
+            let ratio: Double = Double(newSize) / Double(originalSize)
+            return 1 - ratio
         }
     }
 
@@ -47,9 +49,11 @@ public enum ImageCompressor {
                     let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("kumquat-\(UUID().uuidString).png")
                     defer { try? FileManager.default.removeItem(at: tmp) }
                     try ImageIOHelpers.write(image, to: tmp, type: .png)
-                    try await ExternalTools.runChecked(cwebp, ["-quiet", "-mt", "-q", String(Int(quality * 100)), tmp.path, "-o", out.path])
+                    let q: String = String(Int(quality * 100))
+                    let arguments: [String] = ["-quiet", "-mt", "-q", q, tmp.path, "-o", out.path]
+                    try await ExternalTools.runChecked(cwebp, arguments)
                 } else {
-                    try ImageConverter.encodeWebPLossless(image, to: out)
+                    try ImageConverter.encodeWebP(image, to: out, lossless: false, quality: quality)
                 }
             }
         case .tiff:

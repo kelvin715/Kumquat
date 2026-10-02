@@ -19,8 +19,8 @@ public struct RGBA: Sendable, Hashable, Codable {
         a = alpha
     }
 
-    public var cgColor: CGColor { CGColor(srgbRed: r, green: g, blue: b, alpha: a) }
-    public var nsColor: NSColor { NSColor(srgbRed: r, green: g, blue: b, alpha: a) }
+    public var cgColor: CGColor { CGColor(srgbRed: CGFloat(r), green: CGFloat(g), blue: CGFloat(b), alpha: CGFloat(a)) }
+    public var nsColor: NSColor { NSColor(srgbRed: CGFloat(r), green: CGFloat(g), blue: CGFloat(b), alpha: CGFloat(a)) }
 
     public static let black = RGBA(0, 0, 0)
     public static let white = RGBA(1, 1, 1)
@@ -55,7 +55,7 @@ public enum ImageOutput {
         return try OutputNaming.write(to: destination) { out in
             switch format {
             case .webp:
-                try ImageConverter.encodeWebPLossless(image, to: out)
+                try ImageConverter.encodeWebP(image, to: out, lossless: false, quality: 0.9)
             case .jpg, .bmp:
                 props[kCGImageDestinationLossyCompressionQuality] = 0.92
                 try ImageIOHelpers.write(ImageIOHelpers.flatten(image), to: out,
@@ -304,7 +304,8 @@ public enum RedactionStyle: String, CaseIterable, Sendable {
 public enum Redactor {
     /// `regions` are normalized (0...1), y-down.
     public static func redact(_ image: CGImage, regions: [CGRect], style: RedactionStyle,
-                              context: CIContext = CIContext()) -> CGImage? {
+                              context: CIContext? = nil) -> CGImage? {
+        let context: CIContext = context ?? CIContext()
         let w = CGFloat(image.width), h = CGFloat(image.height)
         let rects = regions.map { r in
             CGRect(x: r.minX * w, y: (1 - r.maxY) * h, width: r.width * w, height: r.height * h).integral
@@ -365,7 +366,8 @@ public struct ImageAdjustments: Sendable, Hashable {
 }
 
 public enum ImageAdjuster {
-    public static func apply(_ adj: ImageAdjustments, to image: CGImage, context: CIContext = CIContext()) -> CGImage? {
+    public static func apply(_ adj: ImageAdjustments, to image: CGImage, context: CIContext? = nil) -> CGImage? {
+        let context: CIContext = context ?? CIContext()
         var ci = CIImage(cgImage: image)
         let extent = ci.extent
 

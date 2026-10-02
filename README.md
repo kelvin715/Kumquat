@@ -82,7 +82,7 @@ make install
 brew install ffmpeg webp
 ```
 
-装好后 Kumquat 会自动发现它们：`ffmpeg` 带来 MP3 / WebM 输出以及 MKV、WebM、AVI、OGG 等输入；`cwebp` 生成更小的有损 WebP。没装也能正常使用——Kumquat 内置了纯 Swift 实现的无损 WebP 编码器。
+装好后 Kumquat 会自动发现它们：`ffmpeg` 带来 MP3 / WebM 输出以及 MKV、WebM、AVI、OGG 等输入；装了 `cwebp` 时 WebP 会交给它编码。不装也完全能用——Kumquat 自带纯 Swift 实现的 WebP 编码器（有损 VP8 + 无损 VP8L），在 900 万像素照片上与 cwebp 的体积和画质几乎一致。
 
 ### 命令行
 
@@ -100,7 +100,7 @@ kumquat actions photo.png        # 看看轮盘会显示什么
 
 - **无需特殊权限**：用全局鼠标事件监听 + 拖拽剪贴板（`NSPasteboard(name: .drag)`）的变化计数发现文件拖拽，拖拽期间以 60 Hz 轮询修饰键；如果系统不允许后台应用读取拖拽内容，轮盘会先出现，再从自己的拖放回调里拿到文件。
 - **轮盘本身就是拖放目标**：按下 Shift 时，在指针下方弹出一个不抢焦点的透明面板，按扇区几何做命中测试（扇区之间的缝隙也算最近的扇区）。
-- **全部本地处理**：ImageIO、PDFKit、AVFoundation、Vision（OCR）、TextKit，以及内置的 WebP 无损编码器（VP8L：预测、减绿、调色板变换，LZ77 + 颜色缓存）、DOCX 写入器和 PNG 调色板量化器。
+- **全部本地处理**：ImageIO、PDFKit、AVFoundation、Vision（OCR）、TextKit，以及内置的 WebP 编码器——有损 VP8（16×16 帧内预测、DCT + WHT、上下文自适应的布尔熵编码与概率更新）和无损 VP8L（预测、减绿、调色板变换，LZ77 + 颜色缓存）——还有 DOCX 写入器和 PNG 调色板量化器。
 
 ### 开发
 
@@ -163,7 +163,7 @@ Kumquat is a small macOS menu bar app. While dragging a file — in Finder, on t
 
 Build from source (macOS 14+, Xcode 15+ / Swift 5.10+): `git clone https://github.com/kelvin715/Kumquat.git && cd Kumquat && make install`.
 
-Optional: `brew install ffmpeg webp` adds MP3/WebM output, MKV/WebM/AVI/OGG input and smaller lossy WebP. Without them Kumquat uses its built-in lossless WebP encoder.
+Optional: `brew install ffmpeg webp` adds MP3/WebM output and MKV/WebM/AVI/OGG input, and hands WebP encoding to `cwebp`. Without them Kumquat uses its own WebP encoders (lossy VP8 and lossless VP8L), which on a 9-megapixel photo match cwebp's size and quality within a fraction of a dB.
 
 The app binary doubles as a command-line tool: `Kumquat.app/Contents/MacOS/Kumquat convert photo.heic --to jpg`, `… tool compress clip.mov`, `… actions file.pdf`.
 
@@ -171,7 +171,7 @@ The app binary doubles as a command-line tool: `Kumquat.app/Contents/MacOS/Kumqu
 
 - **No special permissions.** Global mouse monitors plus the drag pasteboard's change count reveal file drags; modifier keys are polled at 60 Hz during a drag. If the system won't let a background app read the drag, the wheel opens anyway and learns the files from its own drop callback.
 - **The wheel is the drop target.** Pressing Shift shows a non-activating, transparent panel under the pointer; hit-testing uses the wheel geometry, so the gaps between segments count as the nearest segment.
-- **Local processing** with ImageIO, PDFKit, AVFoundation, Vision and TextKit, plus a built-in WebP lossless (VP8L) encoder, a DOCX writer and a PNG palette quantizer.
+- **Local processing** with ImageIO, PDFKit, AVFoundation, Vision and TextKit, plus built-in WebP encoders — lossy VP8 (16×16 intra prediction, DCT + WHT, context-adaptive boolean coding with probability updates) and lossless VP8L — a DOCX writer and a PNG palette quantizer.
 
 Run `swift test`, `make self-test` (drives the real wheel with a simulated drag session) and `make previews` (renders the screenshots above) while developing.
 

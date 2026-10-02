@@ -5,7 +5,9 @@ import UniformTypeIdentifiers
 
 public enum VideoTools {
     static func outputType(for input: URL) -> (ext: String, type: AVFileType) {
-        input.pathExtension.lowercased() == "mov" ? ("mov", .mov) : ("mp4", .mp4)
+        let ext: String = input.pathExtension.lowercased()
+        if ext == "mov" { return (ext: "mov", type: AVFileType.mov) }
+        return (ext: "mp4", type: AVFileType.mp4)
     }
 
     /// Re-encodes with HEVC at about half the original bitrate, capped at 1080p.

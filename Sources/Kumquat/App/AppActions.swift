@@ -21,7 +21,8 @@ enum AppActions {
     static func runInBackground(_ action: WheelAction, on urls: [URL]) {
         let settings = AppSettings.shared
         let engine = ConversionEngine(capabilities: settings.capabilities, options: settings.conversionOptions)
-        let total = action == .tool(.merge) ? 1 : urls.count
+        let isMerge: Bool = action == WheelAction.tool(.merge)
+        let total: Int = isMerge ? 1 : urls.count
         let toast = ToastCenter.shared.begin(title: progressTitle(for: action), total: total)
         let task = Task.detached(priority: .userInitiated) {
             let report = await engine.run(action, on: urls) { done, total in

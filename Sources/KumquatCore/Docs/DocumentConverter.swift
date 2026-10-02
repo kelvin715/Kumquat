@@ -25,7 +25,8 @@ public enum DocumentConverter {
             return MarkdownBridge.attributedString(fromMarkdown: text)
         case "txt", "text":
             let text = try readPlainText(url)
-            return NSAttributedString(string: text, attributes: [.font: MarkdownBridge.regular(12)])
+            let attributes: [NSAttributedString.Key: Any] = [.font: MarkdownBridge.regular(12)]
+            return NSAttributedString(string: text, attributes: attributes)
         default:
             var options: [NSAttributedString.DocumentReadingOptionKey: Any] = [:]
             switch ext {

@@ -12,7 +12,7 @@ struct RedactToolView: View {
     @State private var rendered: CGImage?
     @State private var detecting = false
     @State private var status = ""
-    private let context = CIContext(options: [.cacheIntermediates: false])
+    private let context: CIContext = SharedCoreImage.context
 
     init(document: ImageDocument, close: @escaping () -> Void, boxes: [CGRect] = []) {
         _doc = StateObject(wrappedValue: document)

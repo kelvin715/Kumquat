@@ -62,7 +62,8 @@ public enum TextRecognizer {
         // A line that stops well short of the right margin ends its paragraph
         // (headings, addresses, list items); only full-width lines are wrapped prose.
         let rightEdges = sorted.map(\.box.maxX).sorted()
-        let rightMargin = rightEdges[Int(Double(rightEdges.count - 1) * 0.9)]
+        let marginIndex: Int = (rightEdges.count - 1) * 9 / 10
+        let rightMargin: CGFloat = rightEdges[marginIndex]
         let marginSlack = max(0.08, (rightEdges.last! - rightEdges.first!) * 0.15)
         var paragraphs: [String] = []
         var current = ""
