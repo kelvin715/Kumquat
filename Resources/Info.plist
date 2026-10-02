@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>Kumquat</string>
+	<key>CFBundleExecutable</key>
+	<string>Kumquat</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>io.github.kelvin715.Kumquat</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>zh-Hans</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>Kumquat</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>__VERSION__</string>
+	<key>CFBundleVersion</key>
+	<string>__BUILD__</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 kelvin715. MIT License.</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Kumquat saves converted files next to the originals you drag from the Desktop.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Kumquat saves converted files next to the originals you drag from Documents.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Kumquat saves converted files next to the originals you drag from Downloads.</string>
+	<key>NSRemovableVolumesUsageDescription</key>
+	<string>Kumquat saves converted files next to originals on external drives.</string>
+	<key>NSNetworkVolumesUsageDescription</key>
+	<string>Kumquat saves converted files next to originals on network drives.</string>
+</dict>
+</plist>
