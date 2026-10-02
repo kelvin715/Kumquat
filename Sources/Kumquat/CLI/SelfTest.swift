@@ -115,7 +115,10 @@ enum SelfTest {
         wheel.modifiersChanged([.shift])
         check(wheel.isShowing && wheel.model.items.isEmpty && wheel.model.centerText == "…", "unreadable drag shows a pending wheel")
         _ = view.draggingEntered(drag(to: geometry.center))
-        check(wheel.model.items.count == 8, "drop view fills in the formats from the dragging pasteboard")
+        // The exact list depends on the Mac (e.g. AVIF needs macOS 14+ ImageIO support or ffmpeg).
+        let expected = ActionCatalog(capabilities: Capabilities.detect(useExternalTools: false)).formats(for: png).count
+        check(!wheel.model.items.isEmpty && wheel.model.items.count == expected,
+              "drop view fills in the formats from the dragging pasteboard")
         wheel.dragEnded()
         RunLoop.main.run(until: Date().addingTimeInterval(0.3))
 
