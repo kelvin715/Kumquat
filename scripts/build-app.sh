@@ -1,12 +1,16 @@
 #!/bin/bash
-# Builds Kumquat.app (universal: Apple silicon + Intel) into ./build and signs it ad hoc.
-#   scripts/build-app.sh            release build
+# Builds Kumquat.app (universal: Apple silicon + Intel) into ./build.
+#   scripts/build-app.sh                       signed ad hoc (fine for your own Mac)
 #   VERSION=1.2.0 scripts/build-app.sh
+#   SIGN_IDENTITY="Developer ID Application: Name (TEAMID)" scripts/build-app.sh
+#                                              signed for distribution (hardened runtime,
+#                                              secure timestamp); see scripts/notarize.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 VERSION="${VERSION:-1.0.0}"
 BUILD="${BUILD:-$(git rev-list --count HEAD 2>/dev/null || echo 1)}"
+SIGN_IDENTITY="${SIGN_IDENTITY:--}"
 APP="build/Kumquat.app"
 
 echo "▸ Compiling (release)…"
@@ -27,9 +31,16 @@ sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" Resources/Info.plist >
 cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
-echo "▸ Signing (ad hoc)…"
-codesign --force --sign - --timestamp=none "$APP"
-codesign --verify --strict "$APP"
+if [ "$SIGN_IDENTITY" = "-" ]; then
+    echo "▸ Signing (ad hoc)…"
+    codesign --force --sign - --timestamp=none "$APP"
+else
+    # Notarization requires the hardened runtime and a secure timestamp. Kumquat needs no
+    # extra entitlements: it isn't sandboxed and only launches ffmpeg/cwebp as separate processes.
+    echo "▸ Signing with \"$SIGN_IDENTITY\"…"
+    codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$APP"
+fi
+codesign --verify --strict --verbose=2 "$APP"
 
 echo "✓ Built $APP ($VERSION)"
 echo "  Command line: $APP/Contents/MacOS/Kumquat help"

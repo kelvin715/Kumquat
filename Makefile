@@ -1,4 +1,4 @@
-.PHONY: app run install test self-test previews icon zip clean
+.PHONY: app run install test self-test previews icon zip notarize clean
 
 app:
 	@scripts/build-app.sh
@@ -25,6 +25,10 @@ icon:
 
 zip: app
 	@cd build && ditto -c -k --sequesterRsrc --keepParent Kumquat.app Kumquat.zip && echo "build/Kumquat.zip"
+
+# Developer ID signing + Apple notarization (see README › Signing and notarization).
+notarize:
+	@scripts/notarize.sh
 
 clean:
 	rm -rf .build build

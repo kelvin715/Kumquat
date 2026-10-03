@@ -62,10 +62,11 @@ Kumquat 是一个 macOS 菜单栏小工具。在访达（或桌面、任意应�
 ### 安装
 
 1. 从 [Releases](https://github.com/kelvin715/Kumquat/releases) 下载 `Kumquat.zip`，解压后拖进「应用程序」。
-2. 首次打开：这是开源的自签名应用（未经 Apple 公证），请在「应用程序」里**右键 → 打开**，或在终端执行
+2. 首次打开：目前的安装包是自签名的（尚未经过 Apple 公证），macOS 会提示无法验证开发者。点「完成」，然后打开「系统设置 › 隐私与安全性」，在页面下方 Kumquat 那一栏点「仍要打开」并确认；或者在终端执行
    ```bash
    xattr -dr com.apple.quarantine /Applications/Kumquat.app
    ```
+   （从 macOS 15 起，「右键 → 打开」已不能绕过这一步。经过公证的版本可以直接打开，见下文「签名与公证」。）
 3. Kumquat 常驻菜单栏（没有 Dock 图标）。第一次把结果保存到「桌面 / 文稿 / 下载」时，macOS 会询问文件夹访问权限，点「允许」即可。**不需要**辅助功能、录屏等特殊权限。
 
 从源码构建（需要 macOS 14+、Xcode 15+ / Swift 5.10+）：
@@ -121,6 +122,23 @@ Sources/Kumquat       菜单栏应用
   CLI/                命令行、截图渲染、自测
 ```
 
+### 签名与公证（发布者）
+
+想让用户下载后直接打开，需要用 Developer ID 签名并交给 Apple 公证：
+
+1. 加入 [Apple Developer Program](https://developer.apple.com/programs/)（付费会员）。
+2. 在 Xcode › 设置 › 账户 › 你的团队 › 管理证书 里点「+」，创建 **Developer ID Application** 证书。
+3. 在 [appleid.apple.com](https://appleid.apple.com) › 登录与安全 › App 专用密码 里生成一个密码，再把公证凭据存进钥匙串（命令会提示输入这个密码）：
+   ```bash
+   xcrun notarytool store-credentials kumquat-notary --apple-id 你的AppleID --team-id 你的团队ID
+   ```
+4. 构建、签名、公证、装订一步完成，生成的 `build/Kumquat.zip` 上传到 Release 即可：
+   ```bash
+   VERSION=1.2.0 make notarize
+   ```
+
+用 Developer ID 签名后，用户授予的「桌面」等文件夹权限在升级后也会保留（临时签名的版本每次更新都要重新授权）。
+
 ### 声明
 
 「拖拽时按 Shift 弹出格式轮盘」的交互灵感来自 Mac 应用 Tangerine。Kumquat 是独立的开源实现，与其没有任何关联，也没有使用其任何代码、图标或素材。
@@ -158,7 +176,7 @@ Kumquat is a small macOS menu bar app. While dragging a file — in Finder, on t
 ### Install
 
 1. Download `Kumquat.zip` from [Releases](https://github.com/kelvin715/Kumquat/releases), unzip it and move it to Applications.
-2. The app is open source and signed ad hoc (not notarized). The first time, **right-click → Open** it, or run `xattr -dr com.apple.quarantine /Applications/Kumquat.app`.
+2. Current builds are signed ad hoc, not notarized, so macOS says it can't verify the developer. Click Done, open System Settings › Privacy & Security, scroll down and click **Open Anyway** next to Kumquat — or run `xattr -dr com.apple.quarantine /Applications/Kumquat.app`. (Since macOS 15, right-click → Open no longer gets past this. Notarized builds open directly; see below.)
 3. Kumquat lives in the menu bar. The first time it saves into Desktop, Documents or Downloads, macOS asks for folder access — click Allow. No Accessibility or Screen Recording permission is needed.
 
 Build from source (macOS 14+, Xcode 15+ / Swift 5.10+): `git clone https://github.com/kelvin715/Kumquat.git && cd Kumquat && make install`.
@@ -174,6 +192,18 @@ The app binary doubles as a command-line tool: `Kumquat.app/Contents/MacOS/Kumqu
 - **Local processing** with ImageIO, PDFKit, AVFoundation, Vision and TextKit, plus built-in WebP encoders — lossy VP8 (16×16 intra prediction, DCT + WHT, context-adaptive boolean coding with probability updates) and lossless VP8L — a DOCX writer and a PNG palette quantizer.
 
 Run `swift test`, `make self-test` (drives the real wheel with a simulated drag session) and `make previews` (renders the screenshots above) while developing.
+
+### Signing and notarization (maintainers)
+
+To let people open the download directly, sign with a Developer ID and notarize:
+
+1. Join the [Apple Developer Program](https://developer.apple.com/programs/).
+2. In Xcode › Settings › Accounts › your team › Manage Certificates, add a **Developer ID Application** certificate.
+3. Create an app-specific password at [appleid.apple.com](https://appleid.apple.com), then store notary credentials in your keychain (you'll be prompted for the password):
+   `xcrun notarytool store-credentials kumquat-notary --apple-id you@example.com --team-id TEAMID`
+4. `VERSION=1.2.0 make notarize` builds, signs (hardened runtime), notarizes and staples, leaving `build/Kumquat.zip` ready to upload.
+
+With a Developer ID signature, folder permissions people grant (such as Desktop) also survive updates.
 
 ### Credits
 
