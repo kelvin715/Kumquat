@@ -15,6 +15,7 @@ final class WheelController {
     private var urls: [URL] = []
     private var center: NSPoint = .zero
     private var dropPerformed = false
+    private var pendingHide: DispatchWorkItem?
     private let margin: CGFloat = 36
 
     init(catalogProvider: @escaping () -> ActionCatalog) {
@@ -24,6 +25,8 @@ final class WheelController {
     // MARK: - Drag monitor events
 
     func dragStarted(urls: [URL]) {
+        // A wheel still waiting for the previous drag's drop belongs to a finished session.
+        if isShowing { hide() }
         self.urls = urls
         dropPerformed = false
     }
@@ -47,8 +50,19 @@ final class WheelController {
         if distance > model.diameter / 2 + 150 { hide() }
     }
 
+    /// The mouse button went up. The drop itself reaches the wheel a moment later (it travels
+    /// through the window server), so keep accepting it until the drag session reports that it
+    /// is over, with a short fallback in case it never does.
     func dragEnded() {
-        hide()
+        guard isShowing else { return }
+        pendingHide?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            guard let self, self.isShowing, !self.dropPerformed else { return }
+            Log.drag.notice("Drag ended without a drop on the wheel")
+            self.hide()
+        }
+        pendingHide = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: work)
     }
 
     // MARK: - Drop view events
@@ -83,10 +97,14 @@ final class WheelController {
     }
 
     func drop(at point: CGPoint, urls dropped: [URL]) -> Bool {
-        guard let index = segment(at: point), model.items.indices.contains(index) else { return false }
+        guard let index = segment(at: point), model.items.indices.contains(index) else {
+            Log.drag.notice("Drop outside the segments (showing: \(self.isShowing))")
+            return false
+        }
         let action = model.items[index].action
         let files = dropped.isEmpty ? urls : dropped
         guard !files.isEmpty else { return false }
+        Log.drag.notice("Dropped \(files.count) file(s) on \(action.title, privacy: .public)")
         dropPerformed = true
         model.chosen = index
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) { [weak self] in self?.hide() }
@@ -135,9 +153,11 @@ final class WheelController {
         panel.setFrame(frame, display: false)
         center = NSPoint(x: frame.midX, y: frame.midY)
         model.isPresented = false
+        pendingHide?.cancel()
         panel.orderFrontRegardless()
         isShowing = true
         dropPerformed = false
+        Log.drag.notice("Wheel shown: \(mode.rawValue, privacy: .public), \(items.count) segments")
         DispatchQueue.main.async { [weak self] in
             guard let self, self.isShowing else { return }
             self.model.isPresented = true
@@ -156,6 +176,8 @@ final class WheelController {
     }
 
     func hide() {
+        pendingHide?.cancel()
+        pendingHide = nil
         guard isShowing else { return }
         isShowing = false
         model.isPresented = false

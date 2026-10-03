@@ -110,6 +110,7 @@ final class DragMonitor {
         isDragging = true
         draggedURLs = urls
         lastFlags = []
+        Log.drag.debug("File drag started (\(urls.count) readable)")
         onDragStarted?(urls)
         let flags = NSEvent.modifierFlags.intersection(relevantFlags)
         if !flags.isEmpty {

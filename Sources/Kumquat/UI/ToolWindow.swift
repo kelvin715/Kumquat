@@ -154,8 +154,10 @@ final class ToolWindowManager: NSObject, NSWindowDelegate {
                     AppActions.finished(outputs: [url])
                 }
             } catch {
+                let message = ConversionEngine.message(for: error)
+                Log.work.error("Tool failed: \(message, privacy: .public)")
                 await MainActor.run {
-                    ToastCenter.shared.fail(toast, title: L("Couldn't save"), message: ConversionEngine.message(for: error))
+                    ToastCenter.shared.fail(toast, title: L("Couldn't save"), message: message)
                 }
             }
         }

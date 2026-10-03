@@ -19,6 +19,7 @@ enum AppActions {
     }
 
     static func runInBackground(_ action: WheelAction, on urls: [URL]) {
+        Log.work.notice("\(action.title, privacy: .public) on \(urls.count) file(s)")
         let settings = AppSettings.shared
         let engine = ConversionEngine(capabilities: settings.capabilities, options: settings.conversionOptions)
         let isMerge: Bool = action == WheelAction.tool(.merge)
@@ -34,6 +35,10 @@ enum AppActions {
     }
 
     private static func complete(_ report: ConversionEngine.Report, toast: ToastItem, action: WheelAction, total: Int) {
+        Log.work.notice("\(action.title, privacy: .public): saved \(report.outputs.count), failed \(report.failures.count)")
+        for failure in report.failures {
+            Log.work.error("\(failure.message, privacy: .public)")
+        }
         if report.outputs.isEmpty {
             let message = report.failures.first?.message ?? L("Nothing was saved.")
             ToastCenter.shared.fail(toast, title: L("Couldn't finish"), message: message)

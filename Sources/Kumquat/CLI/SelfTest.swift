@@ -97,11 +97,22 @@ enum SelfTest {
         }
         let target = drag(to: geometry.labelCenter(of: webp))
         _ = view.draggingEntered(target)
-        check(view.prepareForDragOperation(target), "prepare accepts a drop on a segment")
+        // macOS reports the mouse-up before it delivers the drop to the wheel.
+        wheel.dragEnded()
+        check(wheel.isShowing, "wheel stays live between the mouse-up and the drop")
+        check(view.prepareForDragOperation(target), "prepare accepts a drop that arrives after the mouse-up")
         check(view.performDragOperation(target), "drop on WEBP is performed")
+        view.draggingEnded(target)
         RunLoop.main.run(until: Date().addingTimeInterval(0.4))
         check(received?.0 == .convert(.webp) && received?.1 == [png], "drop routes .convert(webp) with the dragged file")
         check(!wheel.isShowing, "wheel hides after the drop")
+
+        // A release with no drop on the wheel closes it shortly afterwards.
+        wheel.dragStarted(urls: [png])
+        wheel.modifiersChanged([.shift])
+        wheel.dragEnded()
+        RunLoop.main.run(until: Date().addingTimeInterval(1.3))
+        check(!wheel.isShowing, "wheel closes after a release elsewhere")
 
         // Walking far away dismisses the wheel.
         wheel.dragStarted(urls: [png])
