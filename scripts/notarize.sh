@@ -1,6 +1,7 @@
 #!/bin/bash
 # Builds Kumquat.app, signs it with your Developer ID, notarizes it with Apple and staples the
-# ticket, so people can open the downloaded app without any Gatekeeper workaround.
+# ticket, then does the same for the disk image, so people can open the download directly.
+# Produces build/Kumquat.dmg and build/Kumquat.zip.
 #
 # One-time setup (needs an Apple Developer Program membership):
 #   1. Xcode › Settings › Accounts › your team › Manage Certificates › + › Developer ID Application
@@ -29,26 +30,38 @@ fi
 SIGN_IDENTITY="$SIGN_IDENTITY" scripts/build-app.sh
 
 APP="build/Kumquat.app"
+DMG="build/Kumquat.dmg"
 SUBMISSION="build/Kumquat-notarize.zip"
-RESULT="build/notary-result.json"
 
-echo "▸ Submitting to Apple's notary service (usually a few minutes)…"
+# Submits a file and waits; on rejection prints Apple's log and stops.
+notarize() {
+    local file="$1" result="build/notary-result.json" status id
+    xcrun notarytool submit "$file" --keychain-profile "$PROFILE" --wait --output-format json > "$result"
+    status="$(plutil -extract status raw -o - "$result")"
+    id="$(plutil -extract id raw -o - "$result")"
+    rm -f "$result"
+    if [ "$status" != "Accepted" ]; then
+        echo "✗ Notarization of $file finished with status \"$status\". Apple's log:" >&2
+        xcrun notarytool log "$id" --keychain-profile "$PROFILE" >&2 || true
+        exit 1
+    fi
+}
+
+echo "▸ Notarizing the app (usually a few minutes)…"
 rm -f "$SUBMISSION"
 ditto -c -k --keepParent "$APP" "$SUBMISSION"
-xcrun notarytool submit "$SUBMISSION" --keychain-profile "$PROFILE" --wait --output-format json > "$RESULT"
-STATUS="$(plutil -extract status raw -o - "$RESULT")"
-SUBMISSION_ID="$(plutil -extract id raw -o - "$RESULT")"
-if [ "$STATUS" != "Accepted" ]; then
-    echo "✗ Notarization finished with status \"$STATUS\". Apple's log:" >&2
-    xcrun notarytool log "$SUBMISSION_ID" --keychain-profile "$PROFILE" >&2 || true
-    exit 1
-fi
-
-echo "▸ Stapling the notarization ticket…"
+notarize "$SUBMISSION"
 xcrun stapler staple "$APP"
 xcrun stapler validate "$APP"
 spctl --assess --type execute --verbose=2 "$APP"
-
-rm -f "$SUBMISSION" "$RESULT" build/Kumquat.zip
+rm -f "$SUBMISSION" build/Kumquat.zip
 ditto -c -k --sequesterRsrc --keepParent "$APP" build/Kumquat.zip
-echo "✓ Notarized: build/Kumquat.zip — upload it to the GitHub release."
+
+echo "▸ Notarizing the disk image…"
+SIGN_IDENTITY="$SIGN_IDENTITY" APP="$APP" DMG="$DMG" scripts/make-dmg.sh
+notarize "$DMG"
+xcrun stapler staple "$DMG"
+xcrun stapler validate "$DMG"
+spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
+
+echo "✓ Notarized: $DMG and build/Kumquat.zip — upload them to the GitHub release."
