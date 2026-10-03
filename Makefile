@@ -1,4 +1,4 @@
-.PHONY: app run install test self-test previews icon zip dmg notarize clean
+.PHONY: app run install test self-test previews icon zip dmg notarize cask clean
 
 app:
 	@scripts/build-app.sh
@@ -32,6 +32,10 @@ dmg: app
 # Developer ID signing + Apple notarization; setup steps are in scripts/notarize.sh.
 notarize:
 	@scripts/notarize.sh
+
+# After publishing a release: VERSION=1.2.0 make cask points the Homebrew cask at it.
+cask:
+	@scripts/update-cask.sh
 
 clean:
 	rm -rf .build build

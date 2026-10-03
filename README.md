@@ -61,7 +61,10 @@ Kumquat 是一个 macOS 菜单栏小工具。在访达（或桌面、任意应�
 
 ### 安装
 
-1. 从 [Releases](https://github.com/kelvin715/Kumquat/releases) 下载 `Kumquat.dmg`，打开后把 Kumquat 拖到「应用程序」。
+1. 从 [Releases](https://github.com/kelvin715/Kumquat/releases) 下载 `Kumquat.dmg`，打开后把 Kumquat 拖到「应用程序」；或者用 Homebrew 安装：
+   ```bash
+   brew install --cask kelvin715/tap/kumquat
+   ```
 2. 第一次打开时，如果 macOS 提示无法验证开发者：点「完成」，然后打开「系统设置 › 隐私与安全性」，在页面下方 Kumquat 那一栏点「仍要打开」并确认。也可以在终端执行：
    ```bash
    xattr -dr com.apple.quarantine /Applications/Kumquat.app
@@ -158,7 +161,7 @@ Kumquat is a small macOS menu bar app. While dragging a file — in Finder, on t
 
 ### Install
 
-1. Download `Kumquat.dmg` from [Releases](https://github.com/kelvin715/Kumquat/releases), open it and drag Kumquat to Applications.
+1. Download `Kumquat.dmg` from [Releases](https://github.com/kelvin715/Kumquat/releases), open it and drag Kumquat to Applications — or install it with Homebrew: `brew install --cask kelvin715/tap/kumquat`.
 2. If macOS says it can't verify the developer the first time you open it, click Done, then open System Settings › Privacy & Security, scroll down and click **Open Anyway** next to Kumquat — or run `xattr -dr com.apple.quarantine /Applications/Kumquat.app`.
 3. Kumquat lives in the menu bar. The first time it saves into Desktop, Documents or Downloads, macOS asks for folder access — click Allow. No Accessibility or Screen Recording permission is needed.
 

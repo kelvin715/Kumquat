@@ -64,4 +64,5 @@ xcrun stapler staple "$DMG"
 xcrun stapler validate "$DMG"
 spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
 
-echo "✓ Notarized: $DMG and build/Kumquat.zip — upload them to the GitHub release."
+echo "✓ Notarized: $DMG and build/Kumquat.zip — upload them to the GitHub release,"
+echo "  then run scripts/update-cask.sh so Homebrew installs the new version."
