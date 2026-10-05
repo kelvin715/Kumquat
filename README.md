@@ -7,6 +7,8 @@
 Hold <b>⇧ Shift</b> while dragging a file to convert it right where it is.
 </p>
 
+<p align="center"><a href="https://github.com/kelvin715/Kumquat/releases"><img src="https://img.shields.io/github/downloads/kelvin715/Kumquat/total" alt="Downloads"></a></p>
+
 <p align="center"><img src="docs/images/hero.png" width="720" alt="The format wheel around a dragged PDF"></p>
 
 <p align="center"><a href="#中文">中文</a> · <a href="#english">English</a></p>
